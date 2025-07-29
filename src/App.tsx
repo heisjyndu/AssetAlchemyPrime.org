@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import LoginForm from './components/Auth/LoginForm';
+import RegisterForm from './components/Auth/RegisterForm';
 import ComplianceGate from './components/ComplianceGate';
 import Header from './components/Layout/Header';
 import Sidebar from './components/Layout/Sidebar';
@@ -11,21 +13,26 @@ import DepositModal from './components/Modals/DepositModal';
 import WithdrawModal from './components/Modals/WithdrawModal';
 import CardApplicationModal from './components/Modals/CardApplicationModal';
 import { useTheme } from './hooks/useTheme';
+import { useAuthProvider } from './hooks/useAuth';
+import { apiService } from './services/api';
 import { 
   mockUser, 
-  mockDashboard, 
-  mockTransactions, 
   investmentPlans 
 } from './data/mockData';
 import { InvestmentPlan } from './types';
 
 function App() {
   const { isDark } = useTheme();
+  const auth = useAuthProvider();
   const [isCountryVerified, setIsCountryVerified] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [userCountry, setUserCountry] = useState('');
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isAdmin, setIsAdmin] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<InvestmentPlan | null>(null);
+  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [transactions, setTransactions] = useState<any[]>([]);
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [showCardModal, setShowCardModal] = useState(false);
@@ -34,15 +41,46 @@ function App() {
     document.documentElement.classList.toggle('dark', isDark);
   }, [isDark]);
 
+  useEffect(() => {
+    if (auth.isAuthenticated && isCountryVerified) {
+      loadDashboardData();
+      loadTransactions();
+    }
+  }, [auth.isAuthenticated, isCountryVerified]);
+
+  const loadDashboardData = async () => {
+    try {
+      const data = await apiService.getDashboard();
+      setDashboardData(data);
+    } catch (error) {
+      console.error('Failed to load dashboard data:', error);
+    }
+  };
+
+  const loadTransactions = async () => {
+    try {
+      const data = await apiService.getTransactions();
+      setTransactions(data);
+    } catch (error) {
+      console.error('Failed to load transactions:', error);
+    }
+  };
   const handleCountryVerified = (country: string) => {
     setUserCountry(country);
     setIsCountryVerified(true);
+    if (!auth.isAuthenticated) {
+      setShowAuth(true);
+    }
   };
 
   const handleLogout = () => {
+    auth.logout();
     setIsCountryVerified(false);
+    setShowAuth(false);
     setUserCountry('');
     setActiveTab('dashboard');
+    setDashboardData(null);
+    setTransactions([]);
   };
 
   const handleAction = (action: string) => {
@@ -62,38 +100,116 @@ function App() {
     }
   };
 
-  const handleDeposit = (amount: number, method: string, receipt: File | null) => {
-    console.log('Deposit:', { amount, method, receipt });
-    // Handle deposit logic here
+  const handleDeposit = async (amount: number, method: string, receipt: File | null) => {
+    try {
+      const formData = new FormData();
+      formData.append('amount', amount.toString());
+      formData.append('method', method);
+      if (receipt) {
+        formData.append('receipt', receipt);
+      }
+      
+      await apiService.createDeposit(formData);
+      await loadTransactions();
+      // Show success message
+    } catch (error) {
+      console.error('Deposit failed:', error);
+      // Show error message
+    }
   };
 
-  const handleWithdraw = (amount: number, address: string, password: string, twoFA: string) => {
-    console.log('Withdraw:', { amount, address, password, twoFA });
-    // Handle withdrawal logic here
+  const handleWithdraw = async (amount: number, address: string, password: string, twoFA: string) => {
+    try {
+      await apiService.createWithdrawal({ amount, address, password, twoFA });
+      await loadTransactions();
+      // Show success message
+    } catch (error) {
+      console.error('Withdrawal failed:', error);
+      // Show error message
+    }
   };
 
-  const handleCardApplication = (data: any) => {
-    console.log('Card Application:', data);
-    // Handle card application logic here
+  const handleCardApplication = async (data: any) => {
+    try {
+      await apiService.applyForCard(data);
+      // Show success message
+    } catch (error) {
+      console.error('Card application failed:', error);
+      // Show error message
+    }
   };
 
-  const handleInvestment = (amount: number) => {
-    console.log('Investment:', { amount, plan: selectedPlan });
-    // Handle investment logic here
+  const handleInvestment = async (amount: number) => {
+    if (!selectedPlan) return;
+    
+    try {
+      await apiService.createInvestment({ planId: selectedPlan.id, amount });
+      await loadDashboardData();
+      await loadTransactions();
+      // Show success message
+    } catch (error) {
+      console.error('Investment failed:', error);
+      // Show error message
+    }
   };
 
   if (!isCountryVerified) {
     return <ComplianceGate onCountryVerified={handleCountryVerified} />;
   }
 
+  if (showAuth) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+        {authMode === 'login' ? (
+          <LoginForm
+            onLogin={async (email, password) => {
+              await auth.login(email, password);
+              setShowAuth(false);
+            }}
+            onSwitchToRegister={() => setAuthMode('register')}
+            isLoading={auth.isLoading}
+          />
+        ) : (
+          <RegisterForm
+            onRegister={async (userData) => {
+              await auth.register(userData);
+              setShowAuth(false);
+            }}
+            onSwitchToLogin={() => setAuthMode('login')}
+            isLoading={auth.isLoading}
+          />
+        )}
+      </div>
+    );
+  }
+
+  if (auth.isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
+        if (!dashboardData) {
+          return (
+            <div className="text-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500 mx-auto mb-4"></div>
+              <p className="text-gray-600 dark:text-gray-400">Loading dashboard...</p>
+            </div>
+          );
+        }
         return (
           <div className="space-y-6">
-            <SummaryCards data={mockDashboard} />
+            <SummaryCards data={dashboardData} />
             <ActionCenter onAction={handleAction} />
-            <TransactionTable transactions={mockTransactions} />
+            <TransactionTable transactions={transactions} />
           </div>
         );
       case 'invest':
@@ -113,7 +229,7 @@ function App() {
       case 'transactions':
         return (
           <div className="space-y-6">
-            <TransactionTable transactions={mockTransactions} />
+            <TransactionTable transactions={transactions} />
           </div>
         );
       case 'cards':
@@ -213,7 +329,7 @@ function App() {
         />
         
         <div className="flex-1">
-          <Header user={mockUser} onLogout={handleLogout} />
+          <Header user={auth.user || mockUser} onLogout={handleLogout} />
           
           <main className="p-6">
             <div className="max-w-7xl mx-auto">
@@ -234,7 +350,7 @@ function App() {
         isOpen={showWithdrawModal}
         onClose={() => setShowWithdrawModal(false)}
         onWithdraw={handleWithdraw}
-        availableBalance={mockDashboard.balance}
+        availableBalance={dashboardData?.balance || 0}
       />
       
       <CardApplicationModal
