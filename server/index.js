@@ -8,22 +8,21 @@ const jwt = require('jsonwebtoken');
 const speakeasy = require('speakeasy');
 const QRCode = require('qrcode');
 const nodemailer = require('nodemailer');
-const { Pool } = require('pg');
 const { v4: uuidv4 } = require('uuid');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 require('dotenv').config();
 
+// Import modules
+const { pool } = require('./database');
+const { authenticateToken } = require('./middleware/auth');
+const paymentsRouter = require('./routes/payments');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
-
-// Database connection
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://localhost:5432/cryptovest',
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-});
 
 // Middleware
 app.use(helmet());
@@ -82,24 +81,6 @@ const transporter = nodemailer.createTransporter({
     pass: process.env.SMTP_PASS
   }
 });
-
-// JWT middleware
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ error: 'Access token required' });
-  }
-
-  jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret', (err, user) => {
-    if (err) {
-      return res.status(403).json({ error: 'Invalid token' });
-    }
-    req.user = user;
-    next();
-  });
-};
 
 // Database initialization
 const initDatabase = async () => {
@@ -200,6 +181,9 @@ const generateWalletAddress = (currency) => {
 };
 
 // Routes
+
+// Payment routes
+app.use('/api/payments', paymentsRouter);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -535,6 +519,7 @@ const startServer = async () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📊 Dashboard: http://localhost:${PORT}/api/health`);
     console.log(`🔒 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`💳 Stripe: ${process.env.STRIPE_SECRET_KEY ? 'Configured' : 'Not configured'}`);
   });
 };
 

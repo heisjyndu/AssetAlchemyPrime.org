@@ -37,6 +37,13 @@ const ComplianceGate: React.FC<ComplianceGateProps> = ({ onCountryVerified }) =>
     }
   };
 
+  // Auto-select a safe country for demo purposes
+  React.useEffect(() => {
+    if (!selectedCountry) {
+      setSelectedCountry('GB'); // Default to UK for demo
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8">

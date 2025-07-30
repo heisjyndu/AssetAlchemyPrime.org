@@ -12,6 +12,7 @@ import InvestmentCalculator from './components/Investment/InvestmentCalculator';
 import DepositModal from './components/Modals/DepositModal';
 import WithdrawModal from './components/Modals/WithdrawModal';
 import CardApplicationModal from './components/Modals/CardApplicationModal';
+import StripeDepositModal from './components/Modals/StripeDepositModal';
 import { useTheme } from './hooks/useTheme';
 import { useAuthProvider } from './hooks/useAuth';
 import { apiService } from './services/api';
@@ -36,6 +37,8 @@ function App() {
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [showCardModal, setShowCardModal] = useState(false);
+  const [showStripeModal, setShowStripeModal] = useState(false);
+  const [depositMethod, setDepositMethod] = useState<'crypto' | 'card'>('crypto');
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark);
@@ -86,7 +89,13 @@ function App() {
   const handleAction = (action: string) => {
     switch (action) {
       case 'deposit':
+        // Show method selection or directly open crypto modal
+        setDepositMethod('crypto');
         setShowDepositModal(true);
+        break;
+      case 'deposit-card':
+        setDepositMethod('card');
+        setShowStripeModal(true);
         break;
       case 'withdraw':
         setShowWithdrawModal(true);
@@ -98,6 +107,13 @@ function App() {
         setShowCardModal(true);
         break;
     }
+  };
+
+  const handleStripeSuccess = async (amount: number) => {
+    await loadDashboardData();
+    await loadTransactions();
+    // Show success message
+    console.log(`Stripe payment successful: $${amount}`);
   };
 
   const handleDeposit = async (amount: number, method: string, receipt: File | null) => {
@@ -346,6 +362,12 @@ function App() {
         onDeposit={handleDeposit}
       />
       
+      <StripeDepositModal
+        isOpen={showStripeModal}
+        onClose={() => setShowStripeModal(false)}
+        onSuccess={handleStripeSuccess}
+      />
+      
       <WithdrawModal
         isOpen={showWithdrawModal}
         onClose={() => setShowWithdrawModal(false)}
@@ -366,6 +388,15 @@ function App() {
         title={`Switch to ${isAdmin ? 'User' : 'Admin'} View`}
       >
         {isAdmin ? '👤' : '⚙️'}
+      </button>
+
+      {/* Quick Card Deposit Button */}
+      <button
+        onClick={() => handleAction('deposit-card')}
+        className="fixed bottom-20 right-4 p-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all z-50"
+        title="Quick Card Deposit"
+      >
+        💳
       </button>
     </div>
   );

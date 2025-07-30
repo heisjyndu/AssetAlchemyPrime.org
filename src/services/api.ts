@@ -1,4 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.PROD 
+  ? '/.netlify/functions/api' 
+  : (import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
 
 class ApiService {
   private token: string | null = null;
@@ -129,6 +131,14 @@ class ApiService {
   // Health check
   async healthCheck() {
     return this.request('/health');
+  }
+
+  // Payments
+  async createStripePaymentIntent(amount: number, currency: string = 'usd') {
+    return this.request('/payments/create-intent', {
+      method: 'POST',
+      body: JSON.stringify({ amount: amount * 100, currency }), // Convert to cents
+    });
   }
 }
 
