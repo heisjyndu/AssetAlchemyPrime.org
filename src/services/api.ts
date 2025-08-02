@@ -1,6 +1,6 @@
 const API_BASE_URL = import.meta.env.PROD 
   ? '/.netlify/functions/api' 
-  : '/api';
+  : 'http://localhost:5000/api';
 
 class ApiService {
   private token: string | null = null;
@@ -10,7 +10,9 @@ class ApiService {
   }
 
   private async request(endpoint: string, options: RequestInit = {}) {
-    const url = `${API_BASE_URL}${endpoint}`;
+    const url = import.meta.env.PROD 
+      ? `${API_BASE_URL}${endpoint}`
+      : `/api${endpoint}`;
     
     const config: RequestInit = {
       headers: {
