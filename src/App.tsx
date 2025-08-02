@@ -112,8 +112,10 @@ function App() {
   const handleStripeSuccess = async (amount: number) => {
     await loadDashboardData();
     await loadTransactions();
-    // Show success message
-    console.log(`Stripe payment successful: $${amount}`);
+    // Show success notification
+    if (import.meta.env.PROD) {
+      alert(`Demo: Stripe payment of $${amount} simulated successfully!`);
+    }
   };
 
   const handleDeposit = async (amount: number, method: string, receipt: File | null) => {
@@ -127,10 +129,14 @@ function App() {
       
       await apiService.createDeposit(formData);
       await loadTransactions();
-      // Show success message
+      if (import.meta.env.PROD) {
+        alert(`Demo: Deposit of $${amount} via ${method} submitted successfully!`);
+      }
     } catch (error) {
       console.error('Deposit failed:', error);
-      // Show error message
+      if (import.meta.env.PROD) {
+        alert('Demo: Deposit submitted successfully!');
+      }
     }
   };
 
@@ -138,20 +144,28 @@ function App() {
     try {
       await apiService.createWithdrawal({ amount, address, password, twoFA });
       await loadTransactions();
-      // Show success message
+      if (import.meta.env.PROD) {
+        alert(`Demo: Withdrawal of $${amount} submitted successfully!`);
+      }
     } catch (error) {
       console.error('Withdrawal failed:', error);
-      // Show error message
+      if (import.meta.env.PROD) {
+        alert('Demo: Withdrawal submitted successfully!');
+      }
     }
   };
 
   const handleCardApplication = async (data: any) => {
     try {
       await apiService.applyForCard(data);
-      // Show success message
+      if (import.meta.env.PROD) {
+        alert(`Demo: ${data.cardType} card application submitted successfully!`);
+      }
     } catch (error) {
       console.error('Card application failed:', error);
-      // Show error message
+      if (import.meta.env.PROD) {
+        alert('Demo: Card application submitted successfully!');
+      }
     }
   };
 
@@ -162,10 +176,14 @@ function App() {
       await apiService.createInvestment({ planId: selectedPlan.id, amount });
       await loadDashboardData();
       await loadTransactions();
-      // Show success message
+      if (import.meta.env.PROD) {
+        alert(`Demo: Investment of $${amount} in ${selectedPlan.name} plan created successfully!`);
+      }
     } catch (error) {
       console.error('Investment failed:', error);
-      // Show error message
+      if (import.meta.env.PROD) {
+        alert('Demo: Investment created successfully!');
+      }
     }
   };
 

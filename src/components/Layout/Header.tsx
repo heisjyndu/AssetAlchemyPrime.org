@@ -19,6 +19,11 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
           <h1 className="text-2xl font-bold bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text text-transparent">
             CryptoVest
           </h1>
+          {import.meta.env.PROD && (
+            <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-medium rounded-full">
+              DEMO
+            </span>
+          )}
         </div>
 
         <div className="flex items-center space-x-4">
