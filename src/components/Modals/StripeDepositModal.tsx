@@ -60,7 +60,7 @@ const StripeDepositModal: React.FC<StripeDepositModalProps> = ({
 
     try {
       // Create payment intent
-      const response = await fetch(`${import.meta.env.PROD ? '/.netlify/functions/api' : 'http://localhost:5000/api'}/payments/create-intent`, {
+      const response = await fetch(`${import.meta.env.PROD ? '/.netlify/functions/api' : '/api'}/payments/create-intent`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
