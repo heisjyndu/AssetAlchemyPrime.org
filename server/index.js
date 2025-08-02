@@ -17,7 +17,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 require('dotenv').config();
 
 // Import modules
-const { pool } = require('./database');
+const { pool, testConnection } = require('./database');
 const { authenticateToken } = require('./middleware/auth');
 const paymentsRouter = require('./routes/payments');
 
@@ -85,6 +85,13 @@ const transporter = nodemailer.createTransporter({
 // Database initialization
 const initDatabase = async () => {
   try {
+    // Test connection first
+    const isConnected = await testConnection();
+    if (!isConnected) {
+      console.warn('⚠️  Database not available, but server will continue running');
+      return false;
+    }
+
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -163,8 +170,11 @@ const initDatabase = async () => {
     `);
 
     console.log('Database initialized successfully');
+    return true;
   } catch (error) {
     console.error('Database initialization error:', error);
+    console.warn('⚠️  Database initialization failed, but server will continue running');
+    return false;
   }
 };
 
@@ -513,12 +523,13 @@ app.use('*', (req, res) => {
 
 // Initialize database and start server
 const startServer = async () => {
-  await initDatabase();
+  const dbInitialized = await initDatabase();
   
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📊 Dashboard: http://localhost:${PORT}/api/health`);
     console.log(`🔒 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🗄️  Database: ${dbInitialized ? 'Connected' : 'Not available'}`);
     console.log(`💳 Stripe: ${process.env.STRIPE_SECRET_KEY ? 'Configured' : 'Not configured'}`);
   });
 };
