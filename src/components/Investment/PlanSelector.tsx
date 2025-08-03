@@ -55,7 +55,6 @@ const PlanSelector: React.FC<PlanSelectorProps> = ({ plans, selectedPlan, onPlan
                 </div>
               )}
               
-              <div className={`p-6 rounded-xl border-2 transition-all duration-200 ${
               <div className={`p-4 sm:p-6 rounded-xl border-2 transition-all duration-200 ${
                 isSelected
                   ? 'border-teal-500 bg-teal-50 dark:bg-teal-900/20'
