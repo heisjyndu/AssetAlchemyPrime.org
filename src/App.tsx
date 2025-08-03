@@ -13,6 +13,7 @@ import DepositModal from './components/Modals/DepositModal';
 import WithdrawModal from './components/Modals/WithdrawModal';
 import CardApplicationModal from './components/Modals/CardApplicationModal';
 import StripeDepositModal from './components/Modals/StripeDepositModal';
+import AdminDashboard from './components/Admin/AdminDashboard';
 import { useTheme } from './hooks/useTheme';
 import { useAuthProvider } from './hooks/useAuth';
 import { apiService } from './services/api';
@@ -319,26 +320,7 @@ function App() {
           </div>
         );
       case 'admin-overview':
-        return (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Users</h3>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">12,458</p>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Volume</h3>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">$2.4M</p>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Active Investments</h3>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">8,742</p>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Revenue</h3>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">$450K</p>
-            </div>
-          </div>
-        );
+        return <AdminDashboard />;
       default:
         return (
           <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm border border-gray-200 dark:border-gray-700 text-center">
