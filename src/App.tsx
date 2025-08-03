@@ -14,6 +14,7 @@ import WithdrawModal from './components/Modals/WithdrawModal';
 import CardApplicationModal from './components/Modals/CardApplicationModal';
 import StripeDepositModal from './components/Modals/StripeDepositModal';
 import AdminDashboard from './components/Admin/AdminDashboard';
+import TestFirebase from './components/TestFirebase';
 import { useTheme } from './hooks/useTheme';
 import { useAuthProvider } from './hooks/useAuth';
 import { apiService } from './services/api';
@@ -40,6 +41,7 @@ function App() {
   const [showCardModal, setShowCardModal] = useState(false);
   const [showStripeModal, setShowStripeModal] = useState(false);
   const [depositMethod, setDepositMethod] = useState<'crypto' | 'card'>('crypto');
+  const [showFirebaseTest, setShowFirebaseTest] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark);
@@ -321,6 +323,8 @@ function App() {
         );
       case 'admin-overview':
         return <AdminDashboard />;
+      case 'firebase-test':
+        return <TestFirebase />;
       default:
         return (
           <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm border border-gray-200 dark:border-gray-700 text-center">
@@ -388,6 +392,15 @@ function App() {
         title={`Switch to ${isAdmin ? 'User' : 'Admin'} View`}
       >
         {isAdmin ? '👤' : '⚙️'}
+      </button>
+
+      {/* Firebase Test Button */}
+      <button
+        onClick={() => setActiveTab('firebase-test')}
+        className="fixed bottom-36 right-4 p-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full shadow-lg hover:shadow-xl transition-all z-50"
+        title="Test Firebase Integration"
+      >
+        🔥
       </button>
 
       {/* Quick Card Deposit Button */}
