@@ -1,13 +1,22 @@
 const express = require('express');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { authenticateToken } = require('../middleware/auth');
 const { pool } = require('../database');
 
 const router = express.Router();
 
+// Initialize Stripe only if secret key is provided and not a placeholder
+let stripe = null;
+if (process.env.STRIPE_SECRET_KEY && !process.env.STRIPE_SECRET_KEY.includes('placeholder')) {
+  stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+}
+
 // Create payment intent
 router.post('/create-intent', authenticateToken, async (req, res) => {
   try {
+    if (!stripe) {
+      return res.status(503).json({ error: 'Payment processing not available in development mode' });
+    }
+
     const { amount, currency = 'usd' } = req.body;
     const userId = req.user.userId;
 
@@ -41,6 +50,10 @@ router.post('/create-intent', authenticateToken, async (req, res) => {
 
 // Webhook to handle successful payments
 router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  if (!stripe) {
+    return res.status(503).json({ error: 'Payment processing not available in development mode' });
+  }
+
   const sig = req.headers['stripe-signature'];
   let event;
 

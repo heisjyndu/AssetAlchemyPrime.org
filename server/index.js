@@ -12,7 +12,12 @@ const { v4: uuidv4 } = require('uuid');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+// Initialize Stripe only if secret key is provided and not a placeholder
+let stripe = null;
+if (process.env.STRIPE_SECRET_KEY && !process.env.STRIPE_SECRET_KEY.includes('placeholder')) {
+  stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+}
 
 require('dotenv').config();
 
