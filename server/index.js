@@ -307,7 +307,7 @@ app.get('/api/transactions', authenticateToken, async (req, res) => {
         type: tx.type,
         txHash: tx.txHash
       };
-    }));
+    });
 
     res.json(transactions);
   } catch (error) {
