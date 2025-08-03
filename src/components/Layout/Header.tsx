@@ -158,7 +158,6 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
           </div>
         </div>
       )}
-      </div>
     </header>
   );
 };
