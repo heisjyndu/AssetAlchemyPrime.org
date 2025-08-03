@@ -132,6 +132,7 @@ export class FirebaseApiService {
     }
     
     q = query(q, orderBy('createdAt', 'desc'), limit(100);
+    )
     
     return onSnapshot(q, (querySnapshot) => {
       const transactions = querySnapshot.docs.map(doc => ({
