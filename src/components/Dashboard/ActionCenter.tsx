@@ -38,12 +38,12 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ onAction }) => {
   ];
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700 mb-6 sm:mb-8">
+      <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">
         Quick Actions
       </h3>
       
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         {actions.map((action) => {
           const Icon = action.icon;
           
@@ -51,17 +51,17 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ onAction }) => {
             <button
               key={action.id}
               onClick={() => onAction(action.id)}
-              className="flex flex-col items-center p-6 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-teal-500 dark:hover:border-teal-400 transition-all duration-200 group hover:shadow-md"
+              className="flex flex-col items-center p-3 sm:p-6 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-teal-500 dark:hover:border-teal-400 transition-all duration-200 group hover:shadow-md"
             >
-              <div className={`p-4 rounded-full bg-gradient-to-r ${action.gradient} mb-3 group-hover:scale-110 transition-transform duration-200`}>
-                <Icon className="w-6 h-6 text-white" />
+              <div className={`p-2 sm:p-4 rounded-full bg-gradient-to-r ${action.gradient} mb-2 sm:mb-3 group-hover:scale-110 transition-transform duration-200`}>
+                <Icon className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
               </div>
               
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
+              <h4 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white mb-1">
                 {action.label}
               </h4>
               
-              <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-center">
                 {action.description}
               </p>
             </button>
@@ -69,13 +69,13 @@ const ActionCenter: React.FC<ActionCenterProps> = ({ onAction }) => {
         })}
       </div>
       
-      <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+      <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200 dark:border-gray-700">
         <button
           onClick={() => onAction('card')}
-          className="w-full flex items-center justify-center space-x-3 p-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:shadow-lg transition-all"
+          className="w-full flex items-center justify-center space-x-2 sm:space-x-3 p-3 sm:p-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:shadow-lg transition-all"
         >
-          <CreditCard className="w-5 h-5" />
-          <span className="font-medium">Apply for Crypto Card</span>
+          <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
+          <span className="text-sm sm:text-base font-medium">Apply for Crypto Card</span>
         </button>
       </div>
     </div>

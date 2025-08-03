@@ -54,29 +54,29 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ data }) => {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6 mb-6 sm:mb-8">
       {cards.map((card, index) => {
         const Icon = card.icon;
         
         return (
           <div
             key={index}
-            className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-200"
+            className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow duration-200"
           >
             <div className="flex items-center justify-between mb-4">
-              <div className={`p-3 rounded-lg bg-gradient-to-r ${card.gradient}`}>
-                <Icon className="w-6 h-6 text-white" />
+              <div className={`p-2 sm:p-3 rounded-lg bg-gradient-to-r ${card.gradient}`}>
+                <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
-              <span className="text-sm font-medium text-green-600 dark:text-green-400">
+              <span className="text-xs sm:text-sm font-medium text-green-600 dark:text-green-400">
                 {card.change}
               </span>
             </div>
             
             <div>
-              <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+              <h3 className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                 {card.title}
               </h3>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">
                 {formatCurrency(card.value)}
               </p>
             </div>

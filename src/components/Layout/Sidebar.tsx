@@ -17,6 +17,8 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, isAdmin }) => {
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
   const userMenuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'invest', label: 'Invest', icon: TrendingUp },
@@ -35,7 +37,21 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, isAdmin }) =>
   const menuItems = isAdmin ? adminMenuItems : userMenuItems;
 
   return (
-    <aside className="w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-screen sticky top-0">
+    <>
+      {/* Mobile sidebar backdrop */}
+      {isMobileOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+      
+      {/* Sidebar */}
+      <aside className={`
+        fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 h-screen
+        transform transition-transform duration-300 ease-in-out lg:transform-none
+        ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
       <nav className="p-6">
         <div className="space-y-2">
           {isAdmin && (
@@ -78,6 +94,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, isAdmin }) =>
         )}
       </nav>
     </aside>
+    </>
   );
 };
 
