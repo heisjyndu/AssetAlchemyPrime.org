@@ -12,7 +12,7 @@ const { v4: uuidv4 } = require('uuid');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { db, COLLECTIONS } = require('./firebase-admin');
+const { db, COLLECTIONS } = require('./firebase-admin.cjs');
 
 // Initialize Stripe only if secret key is provided and not a placeholder
 let stripe = null;
@@ -23,8 +23,8 @@ if (process.env.STRIPE_SECRET_KEY && !process.env.STRIPE_SECRET_KEY.includes('pl
 require('dotenv').config();
 
 // Import modules
-const { authenticateToken } = require('./middleware/auth');
-const paymentsRouter = require('./routes/payments');
+const { authenticateToken } = require('./middleware/auth.cjs');
+const paymentsRouter = require('./routes/payments.cjs');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
