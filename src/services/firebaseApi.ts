@@ -131,8 +131,7 @@ export class FirebaseApiService {
       q = query(q, where('status', '==', status));
     }
     
-    q = query(q, orderBy('createdAt', 'desc'), limit(100);
-    )
+    q = query(q, orderBy('createdAt', 'desc'), limit(100));
     
     return onSnapshot(q, (querySnapshot) => {
       const transactions = querySnapshot.docs.map(doc => ({
