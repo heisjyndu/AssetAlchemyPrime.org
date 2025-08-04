@@ -36,18 +36,3 @@ export interface Dashboard {
   withdrawn: number;
   bonus: number;
 }
-
-export interface CardApplication {
-  id: string;
-  name: string;
-  address: string;
-  cardType: 'virtual' | 'physical';
-  status: 'pending' | 'approved' | 'shipped';
-}
-
-export interface Language {
-  code: string;
-  name: string;
-  nativeName: string;
-  isRTL: boolean;
-}

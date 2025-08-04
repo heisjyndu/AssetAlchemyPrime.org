@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Language, supportedLanguages } from '../data/mockData';
+import { Language } from '../data/mockData';
+import { supportedLanguages } from '../data/mockData';
 
 export const useLanguage = () => {
   const [currentLanguage, setCurrentLanguage] = useState<Language>(supportedLanguages[0]);

@@ -1,4 +1,11 @@
-import { User, Transaction, InvestmentPlan, Dashboard, Language } from '../types';
+import { User, Transaction, InvestmentPlan, Dashboard } from '../types';
+
+export interface Language {
+  code: string;
+  name: string;
+  nativeName: string;
+  isRTL: boolean;
+}
 
 export const mockUser: User = {
   id: '1',

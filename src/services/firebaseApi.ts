@@ -14,7 +14,6 @@ import {
   Timestamp 
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { User, Transaction, InvestmentPlan } from '../types';
 
 // Collections
 const COLLECTIONS = {

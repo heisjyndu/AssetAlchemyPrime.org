@@ -1,4 +1,5 @@
 import React from 'react';
+import React, { useState } from 'react';
 import { Bell, Globe, Moon, Sun, Settings, LogOut } from 'lucide-react';
 import { useTheme } from '../../hooks/useTheme';
 import { useLanguage } from '../../hooks/useLanguage';

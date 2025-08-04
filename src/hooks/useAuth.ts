@@ -1,25 +1,6 @@
-import { useState, useEffect, createContext, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
 import { User } from '../types';
-
-interface AuthContextType {
-  user: User | null;
-  isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (userData: any) => Promise<void>;
-  logout: () => void;
-  isAuthenticated: boolean;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
 
 export const useAuthProvider = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -81,5 +62,3 @@ export const useAuthProvider = () => {
     isAuthenticated: !!user || !!localStorage.getItem('auth_token'),
   };
 };
-
-export { AuthContext };

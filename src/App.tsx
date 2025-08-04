@@ -18,11 +18,8 @@ import TestFirebase from './components/TestFirebase';
 import { useTheme } from './hooks/useTheme';
 import { useAuthProvider } from './hooks/useAuth';
 import { apiService } from './services/api';
-import { 
-  mockUser, 
-  investmentPlans 
-} from './data/mockData';
-import { InvestmentPlan } from './types';
+import { mockUser, investmentPlans } from './data/mockData';
+import type { InvestmentPlan } from './types';
 
 function App() {
   const { isDark } = useTheme();
