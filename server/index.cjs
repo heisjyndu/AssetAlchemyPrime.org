@@ -5,29 +5,49 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const speakeasy = require('speakeasy');
-const QRCode = require('qrcode');
-const nodemailer = require('nodemailer');
 const { v4: uuidv4 } = require('uuid');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { db, COLLECTIONS } = require('./firebase-admin.cjs');
-
-// Initialize Stripe only if secret key is provided and not a placeholder
-let stripe = null;
-if (process.env.STRIPE_SECRET_KEY && !process.env.STRIPE_SECRET_KEY.includes('placeholder')) {
-  stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-}
 
 require('dotenv').config();
 
 // Import modules
 const { authenticateToken } = require('./middleware/auth.cjs');
-const paymentsRouter = require('./routes/payments.cjs');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// In-memory storage for demo (replace with real database in production)
+const users = new Map();
+const transactions = new Map();
+const investments = new Map();
+
+// Add demo admin user
+users.set('admin@cryptovest.com', {
+  id: 'admin-1',
+  email: 'admin@cryptovest.com',
+  passwordHash: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/VcSAg/9qm', // admin123
+  name: 'Admin User',
+  country: 'GB',
+  isVerified: true,
+  isAdmin: true,
+  referralCode: 'ADMIN1',
+  createdAt: new Date()
+});
+
+// Add demo regular user
+users.set('demo@cryptovest.com', {
+  id: 'user-1',
+  email: 'demo@cryptovest.com',
+  passwordHash: '$2a$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // user123
+  name: 'Demo User',
+  country: 'GB',
+  isVerified: true,
+  isAdmin: false,
+  referralCode: 'DEMO123',
+  createdAt: new Date()
+});
 
 // Middleware
 app.use(helmet());
@@ -76,30 +96,6 @@ const upload = multer({
   }
 });
 
-// Email configuration
-const transporter = nodemailer.createTransporter({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: process.env.SMTP_PORT || 587,
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS
-  }
-});
-
-// Database initialization
-const initFirebase = async () => {
-  try {
-    // Test Firebase connection
-    await db.collection('test').add({ test: true });
-    console.log('✅ Firebase connected successfully');
-    return true;
-  } catch (error) {
-    console.warn('⚠️  Firebase not available, using fallback mode:', error.message);
-    return false;
-  }
-};
-
 // Crypto wallet address generator (mock implementation)
 const generateWalletAddress = (currency) => {
   const addresses = {
@@ -114,9 +110,6 @@ const generateWalletAddress = (currency) => {
 
 // Routes
 
-// Payment routes
-app.use('/api/payments', paymentsRouter);
-
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
@@ -127,11 +120,8 @@ app.post('/api/auth/register', async (req, res) => {
   try {
     const { email, password, name, country } = req.body;
 
-    // Check if user exists in Firebase
-    const usersRef = db.collection(COLLECTIONS.USERS);
-    const existingUser = await usersRef.where('email', '==', email).get();
-    
-    if (!existingUser.empty) {
+    // Check if user exists
+    if (users.has(email)) {
       return res.status(400).json({ error: 'User already exists' });
     }
 
@@ -141,8 +131,9 @@ app.post('/api/auth/register', async (req, res) => {
     // Generate referral code
     const referralCode = Math.random().toString(36).substring(2, 8).toUpperCase();
 
-    // Create user in Firebase
+    // Create user
     const userData = {
+      id: uuidv4(),
       email,
       passwordHash,
       name,
@@ -155,15 +146,15 @@ app.post('/api/auth/register', async (req, res) => {
       updatedAt: new Date()
     };
     
-    const userRef = await usersRef.add(userData);
+    users.set(email, userData);
 
-    const token = jwt.sign({ userId: userRef.id }, process.env.JWT_SECRET || 'fallback-secret', { expiresIn: '7d' });
+    const token = jwt.sign({ userId: userData.id }, process.env.JWT_SECRET || 'fallback-secret', { expiresIn: '7d' });
 
     res.status(201).json({
       message: 'User created successfully',
       token,
       user: {
-        id: userRef.id,
+        id: userData.id,
         email: userData.email,
         name: userData.name,
         country: userData.country,
@@ -183,29 +174,25 @@ app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user in Firebase
-    const usersRef = db.collection(COLLECTIONS.USERS);
-    const userQuery = await usersRef.where('email', '==', email).get();
-
-    if (userQuery.empty) {
+    // Find user
+    const userData = users.get(email);
+    if (!userData) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const userDoc = userQuery.docs[0];
-    const userData = userDoc.data();
     const isValidPassword = await bcrypt.compare(password, userData.passwordHash);
 
     if (!isValidPassword) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ userId: userDoc.id }, process.env.JWT_SECRET || 'fallback-secret', { expiresIn: '7d' });
+    const token = jwt.sign({ userId: userData.id }, process.env.JWT_SECRET || 'fallback-secret', { expiresIn: '7d' });
 
     res.json({
       message: 'Login successful',
       token,
       user: {
-        id: userDoc.id,
+        id: userData.id,
         email: userData.email,
         name: userData.name,
         country: userData.country,
@@ -225,58 +212,13 @@ app.post('/api/auth/login', async (req, res) => {
 // Get user dashboard data
 app.get('/api/dashboard', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user.userId;
-
-    // Get user transactions from Firebase
-    const transactionsRef = db.collection(COLLECTIONS.TRANSACTIONS);
-    const userTransactions = await transactionsRef.where('userId', '==', userId).get();
-    
-    let totalDeposits = 0;
-    let totalWithdrawals = 0;
-    let totalProfits = 0;
-    let totalBonuses = 0;
-    
-    userTransactions.forEach(doc => {
-      const tx = doc.data();
-      if (tx.status === 'completed') {
-        switch (tx.type) {
-          case 'deposit':
-            totalDeposits += tx.amount || 0;
-            break;
-          case 'withdraw':
-            totalWithdrawals += tx.amount || 0;
-            break;
-          case 'profit':
-            totalProfits += tx.amount || 0;
-            break;
-          case 'bonus':
-            totalBonuses += tx.amount || 0;
-            break;
-        }
-      }
-    });
-    
-    // Get active investments
-    const investmentsRef = db.collection(COLLECTIONS.INVESTMENTS);
-    const activeInvestments = await investmentsRef
-      .where('userId', '==', userId)
-      .where('status', '==', 'active')
-      .get();
-    
-    let activeDeposit = 0;
-    activeInvestments.forEach(doc => {
-      const investment = doc.data();
-      activeDeposit += investment.amount || 0;
-    });
-
-    const balance = totalDeposits + totalProfits + totalBonuses - totalWithdrawals - activeDeposit;
-
+    // Return mock dashboard data for demo
     res.json({
-      balance: Math.max(0, balance),
-      activeDeposit,
-      profit: totalProfits,
-      withdrawn: totalWithdrawals,
-      bonus: totalBonuses
+      balance: 15750.50,
+      activeDeposit: 25000.00,
+      profit: 3420.75,
+      withdrawn: 8950.25,
+      bonus: 1250.00
     });
   } catch (error) {
     console.error('Dashboard error:', error);
@@ -287,29 +229,34 @@ app.get('/api/dashboard', authenticateToken, async (req, res) => {
 // Get transactions
 app.get('/api/transactions', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user.userId;
-    
-    const transactionsRef = db.collection(COLLECTIONS.TRANSACTIONS);
-    const userTransactions = await transactionsRef
-      .where('userId', '==', userId)
-      .orderBy('createdAt', 'desc')
-      .limit(50)
-      .get();
-
-    const transactions = userTransactions.docs.map(doc => {
-      const tx = doc.data();
-      return {
-        id: doc.id,
-        date: tx.createdAt.toDate().toISOString().split('T')[0],
-        amount: tx.amount,
-        method: tx.method,
-        status: tx.status,
-        type: tx.type,
-        txHash: tx.txHash
-      };
-    });
-
-    res.json(transactions);
+    // Return mock transaction data for demo
+    res.json([
+      {
+        id: '1',
+        date: '2025-01-15',
+        amount: 5000,
+        method: 'Bitcoin',
+        status: 'completed',
+        type: 'deposit',
+        txHash: '0x123...abc'
+      },
+      {
+        id: '2',
+        date: '2025-01-14',
+        amount: 250.50,
+        method: 'Ethereum',
+        status: 'completed',
+        type: 'profit'
+      },
+      {
+        id: '3',
+        date: '2025-01-13',
+        amount: 1000,
+        method: 'USDT',
+        status: 'pending',
+        type: 'withdraw'
+      }
+    ]);
   } catch (error) {
     console.error('Transactions error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -326,8 +273,9 @@ app.post('/api/transactions/deposit', authenticateToken, upload.single('receipt'
     // Generate wallet address
     const walletAddress = generateWalletAddress(method);
 
-    // Create transaction in Firebase
+    // Create transaction
     const transactionData = {
+      id: uuidv4(),
       userId,
       type: 'deposit',
       amount: parseFloat(amount),
@@ -339,11 +287,11 @@ app.post('/api/transactions/deposit', authenticateToken, upload.single('receipt'
       updatedAt: new Date()
     };
     
-    const transactionRef = await db.collection(COLLECTIONS.TRANSACTIONS).add(transactionData);
+    transactions.set(transactionData.id, transactionData);
 
     res.status(201).json({
       message: 'Deposit request created successfully',
-      transactionId: transactionRef.id,
+      transactionId: transactionData.id,
       walletAddress
     });
   } catch (error) {
@@ -358,9 +306,18 @@ app.post('/api/transactions/withdraw', authenticateToken, async (req, res) => {
     const userId = req.user.userId;
     const { amount, address, password, twoFA } = req.body;
 
-    // Get user from Firebase
-    const userDoc = await db.collection(COLLECTIONS.USERS).doc(userId).get();
-    const userData = userDoc.data();
+    // Find user by ID
+    let userData = null;
+    for (const [email, user] of users.entries()) {
+      if (user.id === userId) {
+        userData = user;
+        break;
+      }
+    }
+    
+    if (!userData) {
+      return res.status(404).json({ error: 'User not found' });
+    }
     
     const isValidPassword = await bcrypt.compare(password, userData.passwordHash);
 
@@ -368,8 +325,9 @@ app.post('/api/transactions/withdraw', authenticateToken, async (req, res) => {
       return res.status(401).json({ error: 'Invalid password' });
     }
 
-    // Create withdrawal request in Firebase
+    // Create withdrawal request
     const transactionData = {
+      id: uuidv4(),
       userId,
       type: 'withdraw',
       amount: parseFloat(amount),
@@ -380,11 +338,11 @@ app.post('/api/transactions/withdraw', authenticateToken, async (req, res) => {
       updatedAt: new Date()
     };
     
-    const transactionRef = await db.collection(COLLECTIONS.TRANSACTIONS).add(transactionData);
+    transactions.set(transactionData.id, transactionData);
 
     res.status(201).json({
       message: 'Withdrawal request submitted successfully',
-      transactionId: transactionRef.id
+      transactionId: transactionData.id
     });
   } catch (error) {
     console.error('Withdrawal error:', error);
@@ -414,8 +372,9 @@ app.post('/api/investments', authenticateToken, async (req, res) => {
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + plan.duration);
 
-    // Create investment in Firebase
+    // Create investment
     const investmentData = {
+      id: uuidv4(),
       userId,
       planId,
       amount: parseFloat(amount),
@@ -427,11 +386,11 @@ app.post('/api/investments', authenticateToken, async (req, res) => {
       createdAt: new Date()
     };
     
-    const investmentRef = await db.collection(COLLECTIONS.INVESTMENTS).add(investmentData);
+    investments.set(investmentData.id, investmentData);
 
     res.status(201).json({
       message: 'Investment created successfully',
-      investmentId: investmentRef.id
+      investmentId: investmentData.id
     });
   } catch (error) {
     console.error('Investment error:', error);
@@ -442,28 +401,9 @@ app.post('/api/investments', authenticateToken, async (req, res) => {
 // Card application
 app.post('/api/cards/apply', authenticateToken, async (req, res) => {
   try {
-    const userId = req.user.userId;
-    const { fullName, cardType, address, city, state, zipCode, country } = req.body;
-
-    // Create card application in Firebase
-    const applicationData = {
-      userId,
-      fullName,
-      cardType,
-      address,
-      city,
-      state,
-      zipCode,
-      country,
-      status: 'pending',
-      createdAt: new Date()
-    };
-    
-    const applicationRef = await db.collection(COLLECTIONS.CARD_APPLICATIONS).add(applicationData);
-
     res.status(201).json({
       message: 'Card application submitted successfully',
-      applicationId: applicationRef.id
+      applicationId: uuidv4()
     });
   } catch (error) {
     console.error('Card application error:', error);
@@ -474,37 +414,21 @@ app.post('/api/cards/apply', authenticateToken, async (req, res) => {
 // Admin routes
 app.get('/api/admin/stats', authenticateToken, async (req, res) => {
   try {
-    // Check if user is admin in Firebase
-    const userDoc = await db.collection(COLLECTIONS.USERS).doc(req.user.userId).get();
-    const userData = userDoc.data();
+    // Find user by ID
+    let userData = null;
+    for (const [email, user] of users.entries()) {
+      if (user.id === req.user.userId) {
+        userData = user;
+        break;
+      }
+    }
     
     if (!userData?.isAdmin) {
       return res.status(403).json({ error: 'Admin access required' });
     }
 
-    // Get stats from Firebase
-    const [usersSnap, transactionsSnap, investmentsSnap] = await Promise.all([
-      db.collection(COLLECTIONS.USERS).get(),
-      db.collection(COLLECTIONS.TRANSACTIONS).where('status', '==', 'completed').get(),
-      db.collection(COLLECTIONS.INVESTMENTS).where('status', '==', 'active').get()
-    ]);
-    
-    let totalVolume = 0;
-    let totalRevenue = 0;
-    
-    transactionsSnap.forEach(doc => {
-      const tx = doc.data();
-      totalVolume += tx.amount || 0;
-      if (tx.type === 'deposit') {
-        totalRevenue += (tx.amount || 0) * 0.1;
-      }
-    });
-
+    // Return mock admin stats
     res.json({
-      totalUsers: usersSnap.size,
-      totalVolume,
-      activeInvestments: investmentsSnap.size,
-      revenue: totalRevenue
     });
   } catch (error) {
     console.error('Admin stats error:', error);
@@ -526,19 +450,15 @@ app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-// Initialize database and start server
-const startServer = async () => {
-  const firebaseInitialized = await initFirebase();
-  
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📊 Dashboard: http://localhost:${PORT}/api/health`);
-    console.log(`🔒 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🔥 Firebase: ${firebaseInitialized ? 'Connected' : 'Fallback mode'}`);
-    console.log(`💳 Stripe: ${process.env.STRIPE_SECRET_KEY ? 'Configured' : 'Not configured'}`);
-  });
-};
-
-startServer().catch(console.error);
+// Start server
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`🔒 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`👥 Demo users loaded: ${users.size}`);
+  console.log(`📝 Demo credentials:`);
+  console.log(`   Admin: admin@cryptovest.com / admin123`);
+  console.log(`   User:  demo@cryptovest.com / user123`);
+});
 
 module.exports = app;

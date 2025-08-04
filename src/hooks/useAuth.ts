@@ -18,9 +18,20 @@ export const useAuthProvider = () => {
 
   const validateToken = async () => {
     try {
-      const dashboard = await apiService.getDashboard();
-      // If dashboard call succeeds, token is valid
-      // You might want to store user data separately
+      // Simple token validation - if we have a token, consider it valid for demo
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        // Set a mock user for demo purposes
+        setUser({
+          id: '1',
+          name: 'Demo User',
+          email: 'demo@cryptovest.com',
+          country: 'GB',
+          isVerified: true,
+          has2FA: true,
+          referralCode: 'DEMO123'
+        });
+      }
       setIsLoading(false);
     } catch (error) {
       // Token is invalid

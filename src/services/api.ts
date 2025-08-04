@@ -76,7 +76,11 @@ class ApiService {
     const method = options.method || 'GET';
     
     if (endpoint === '/auth/login' && method === 'POST') {
+      // Store token for demo
       const mockToken = 'demo-token-' + Date.now();
+      this.token = mockToken;
+      localStorage.setItem('auth_token', mockToken);
+      
       return {
         token: mockToken,
         user: {
@@ -93,7 +97,11 @@ class ApiService {
     }
     
     if (endpoint === '/auth/register' && method === 'POST') {
+      // Store token for demo
       const mockToken = 'demo-token-' + Date.now();
+      this.token = mockToken;
+      localStorage.setItem('auth_token', mockToken);
+      
       return {
         token: mockToken,
         user: {
