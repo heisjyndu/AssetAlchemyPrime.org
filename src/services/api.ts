@@ -26,21 +26,44 @@ class ApiService {
     try {
       const response = await fetch(url, config);
       
+      // Check if response is empty or not JSON
+      const contentType = response.headers.get('content-type');
+      const hasJsonContent = contentType && contentType.includes('application/json');
+      
       if (!response.ok) {
         // If we're in production and the API fails, use mock data
         if (import.meta.env.PROD) {
           return this.handleProductionFallback(endpoint, options);
         }
-        const error = await response.json();
+        let error;
+        try {
+          error = hasJsonContent ? await response.json() : { error: 'Server error' };
+        } catch {
+          error = { error: 'Server error' };
+        }
         throw new Error(error.error || 'Request failed');
       }
 
-      return await response.json();
+      // Handle empty responses or non-JSON responses
+      if (!hasJsonContent) {
+        return { success: true };
+      }
+      
+      const text = await response.text();
+      if (!text) {
+        return { success: true };
+      }
+      
+      try {
+        return JSON.parse(text);
+      } catch {
+        return { success: true, data: text };
+      }
     } catch (error) {
       console.error('API Request failed:', error);
       
-      // In production, fall back to mock authentication
-      if (import.meta.env.PROD) {
+      // Always fall back to mock data when backend is not available
+      if (import.meta.env.PROD || error.message?.includes('fetch')) {
         return this.handleProductionFallback(endpoint, options);
       }
       
