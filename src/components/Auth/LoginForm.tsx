@@ -44,7 +44,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onSwitchToRegister, isLo
             Welcome Back
           </h2>
           <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-            Sign in to your CryptoVest account
+            Sign in to your AssetAlchemyPrime account
           </p>
         </div>
 

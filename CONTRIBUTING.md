@@ -1,6 +1,6 @@
-# Contributing to CryptoVest
+# Contributing to AssetAlchemyPrime
 
-Thank you for your interest in contributing to CryptoVest! This document provides guidelines and information for contributors.
+Thank you for your interest in contributing to AssetAlchemyPrime! This document provides guidelines and information for contributors.
 
 ## 🚀 Getting Started
 
@@ -13,8 +13,8 @@ Thank you for your interest in contributing to CryptoVest! This document provide
 1. Fork the repository on GitHub
 2. Clone your fork locally:
    ```bash
-   git clone https://github.com/yourusername/cryptovest-platform.git
-   cd cryptovest-platform
+   git clone https://github.com/yourusername/asset-alchemy-prime.git
+   cd asset-alchemy-prime
    ```
 3. Install dependencies:
    ```bash
@@ -196,4 +196,4 @@ Contributors will be recognized in:
 - Release notes for significant contributions
 - Special thanks for major features
 
-Thank you for contributing to CryptoVest! 🚀
+Thank you for contributing to AssetAlchemyPrime! 🚀

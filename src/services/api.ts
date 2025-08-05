@@ -85,7 +85,7 @@ class ApiService {
         token: mockToken,
         user: {
           id: '1',
-          email: 'demo@cryptovest.com',
+          email: 'demo@assetalchemyprime.org',
           name: 'Demo User',
           country: 'GB',
           isVerified: true,
@@ -106,7 +106,7 @@ class ApiService {
         token: mockToken,
         user: {
           id: '2',
-          email: 'newuser@cryptovest.com',
+          email: 'newuser@assetalchemyprime.org',
           name: 'New User',
           country: 'GB',
           isVerified: false,

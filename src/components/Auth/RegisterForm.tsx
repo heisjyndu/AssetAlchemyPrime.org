@@ -73,7 +73,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
             Create Account
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
-            Join CryptoVest and start investing
+            Join AssetAlchemyPrime and start investing
           </p>
         </div>
 

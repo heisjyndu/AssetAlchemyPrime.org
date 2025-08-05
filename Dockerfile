@@ -1,4 +1,4 @@
-# Multi-stage build for production
+# Multi-stage build for AssetAlchemyPrime production
 FROM node:18-alpine AS builder
 
 WORKDIR /app

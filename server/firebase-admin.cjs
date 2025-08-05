@@ -9,12 +9,12 @@ try {
     const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
     firebaseApp = admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
-      databaseURL: `https://${process.env.FIREBASE_PROJECT_ID || 'cryptovest-demo'}.firebaseio.com`
+      databaseURL: `https://${process.env.FIREBASE_PROJECT_ID || 'assetalchemyprime-demo'}.firebaseio.com`
     });
   } else {
     // In development, use default credentials or emulator
     firebaseApp = admin.initializeApp({
-      projectId: process.env.FIREBASE_PROJECT_ID || 'cryptovest-demo'
+      projectId: process.env.FIREBASE_PROJECT_ID || 'assetalchemyprime-demo'
     });
   }
   

@@ -25,7 +25,7 @@ export const useAuthProvider = () => {
         setUser({
           id: '1',
           name: 'Demo User',
-          email: 'demo@cryptovest.com',
+          email: 'demo@assetalchemyprime.org',
           country: 'GB',
           isVerified: true,
           has2FA: true,

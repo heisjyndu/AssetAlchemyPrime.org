@@ -4,11 +4,11 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
-    container_name: cryptovest-db
+    container_name: assetalchemyprime-db
     environment:
-      POSTGRES_DB: cryptovest
-      POSTGRES_USER: cryptovest_user
-      POSTGRES_PASSWORD: cryptovest_password
+      POSTGRES_DB: assetalchemyprime
+      POSTGRES_USER: assetalchemyprime_user
+      POSTGRES_PASSWORD: assetalchemyprime_password
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -21,7 +21,7 @@ services:
   # Redis for caching and sessions
   redis:
     image: redis:7-alpine
-    container_name: cryptovest-redis
+    container_name: assetalchemyprime-redis
     ports:
       - "6379:6379"
     networks:
@@ -31,10 +31,10 @@ services:
   # Main Application
   app:
     build: .
-    container_name: cryptovest-app
+    container_name: assetalchemyprime-app
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://cryptovest_user:cryptovest_password@postgres:5432/cryptovest
+      DATABASE_URL: postgresql://assetalchemyprime_user:assetalchemyprime_password@postgres:5432/assetalchemyprime
       JWT_SECRET: your-super-secret-jwt-key-change-in-production
       REDIS_URL: redis://redis:6379
       PORT: 5000
@@ -52,7 +52,7 @@ services:
   # Nginx Reverse Proxy
   nginx:
     image: nginx:alpine
-    container_name: cryptovest-nginx
+    container_name: assetalchemyprime-nginx
     ports:
       - "80:80"
       - "443:443"

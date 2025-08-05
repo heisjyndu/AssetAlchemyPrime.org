@@ -1,6 +1,6 @@
-# CryptoVest - Cryptocurrency Investment Platform
+# AssetAlchemyPrime.org - Premium Investment Platform
 
-A comprehensive cryptocurrency investment platform built with React, TypeScript, and Tailwind CSS. Features a modern dark theme, multi-language support, and enterprise-grade security.
+A comprehensive premium investment platform built with React, TypeScript, and Tailwind CSS. Features a modern dark theme, multi-language support, and enterprise-grade security.
 
 ## 🚀 Features
 
@@ -44,8 +44,8 @@ A comprehensive cryptocurrency investment platform built with React, TypeScript,
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/cryptovest-platform.git
-   cd cryptovest-platform
+   git clone https://github.com/yourusername/asset-alchemy-prime.git
+   cd asset-alchemy-prime
    ```
 
 2. **Install dependencies**
@@ -176,8 +176,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For support and questions:
 - Create an issue on GitHub
-- Email: support@cryptovest.com
-- Documentation: [docs.cryptovest.com](https://docs.cryptovest.com)
+- Email: support@assetalchemyprime.org
+- Documentation: [docs.assetalchemyprime.org](https://docs.assetalchemyprime.org)
 
 ## 🎯 Roadmap
 
@@ -192,4 +192,4 @@ For support and questions:
 
 ---
 
-Built with ❤️ by the CryptoVest Team
+Built with ❤️ by the AssetAlchemyPrime Team

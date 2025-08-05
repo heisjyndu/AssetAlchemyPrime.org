@@ -52,7 +52,7 @@ const ComplianceGate: React.FC<ComplianceGateProps> = ({ onCountryVerified }) =>
             <Globe className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-2xl font-bold bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text text-transparent mb-2">
-            CryptoVest
+            AssetAlchemyPrime
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
             Welcome to our investment platform

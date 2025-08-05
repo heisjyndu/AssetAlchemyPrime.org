@@ -24,9 +24,9 @@ const transactions = new Map();
 const investments = new Map();
 
 // Add demo admin user
-users.set('admin@cryptovest.com', {
+users.set('admin@assetalchemyprime.org', {
   id: 'admin-1',
-  email: 'admin@cryptovest.com',
+  email: 'admin@assetalchemyprime.org',
   passwordHash: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/VcSAg/9qm', // admin123
   name: 'Admin User',
   country: 'GB',
@@ -37,9 +37,9 @@ users.set('admin@cryptovest.com', {
 });
 
 // Add demo regular user
-users.set('demo@cryptovest.com', {
+users.set('demo@assetalchemyprime.org', {
   id: 'user-1',
-  email: 'demo@cryptovest.com',
+  email: 'demo@assetalchemyprime.org',
   passwordHash: '$2a$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // user123
   name: 'Demo User',
   country: 'GB',
@@ -457,8 +457,8 @@ app.listen(PORT, () => {
   console.log(`🔒 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`👥 Demo users loaded: ${users.size}`);
   console.log(`📝 Demo credentials:`);
-  console.log(`   Admin: admin@cryptovest.com / admin123`);
-  console.log(`   User:  demo@cryptovest.com / user123`);
+  console.log(`   Admin: admin@assetalchemyprime.org / admin123`);
+  console.log(`   User:  demo@assetalchemyprime.org / user123`);
 });
 
 module.exports = app;

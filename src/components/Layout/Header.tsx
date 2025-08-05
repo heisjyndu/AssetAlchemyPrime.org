@@ -18,7 +18,7 @@ const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2 sm:space-x-4">
           <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text text-transparent">
-            CryptoVest
+            AssetAlchemyPrime
           </h1>
           {import.meta.env.PROD && (
             <span className="hidden sm:inline-block px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-medium rounded-full">
