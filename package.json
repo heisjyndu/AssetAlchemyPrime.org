@@ -3,6 +3,18 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "description": "Premium cryptocurrency investment platform with advanced features",
+  "keywords": ["cryptocurrency", "investment", "trading", "fintech", "react", "typescript"],
+  "author": "AssetAlchemyPrime Team",
+  "license": "MIT",
+  "homepage": "https://assetalchemyprime.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AssetAlchemyPrime/platform.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AssetAlchemyPrime/platform/issues"
+  },
   "scripts": {
     "dev": "vite",
     "dev:full": "concurrently \"npm run server\" \"npm run dev\"",

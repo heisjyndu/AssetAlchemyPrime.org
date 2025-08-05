@@ -7,22 +7,32 @@ Thank you for your interest in contributing to AssetAlchemyPrime! This document 
 ### Prerequisites
 - Node.js 18+ and npm
 - Git
-- Code editor (VS Code recommended)
+- Code editor (VS Code recommended with recommended extensions)
+- PostgreSQL (optional, for full backend development)
 
 ### Development Setup
 1. Fork the repository on GitHub
 2. Clone your fork locally:
    ```bash
-   git clone https://github.com/yourusername/asset-alchemy-prime.git
-   cd asset-alchemy-prime
+   git clone https://github.com/AssetAlchemyPrime/platform.git
+   cd platform
    ```
 3. Install dependencies:
    ```bash
    npm install
    ```
-4. Start the development server:
+4. Set up environment variables:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+5. Start the development server:
    ```bash
    npm run dev
+   ```
+6. (Optional) Start with backend:
+   ```bash
+   npm run dev:full
    ```
 
 ## 📋 Development Guidelines

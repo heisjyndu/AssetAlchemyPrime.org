@@ -1,9 +1,31 @@
 # Changelog
 
-All notable changes to the AssetAlchemyPrime platform will be documented in this file.
+All notable changes to the AssetAlchemyPrime.org platform will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.1.0] - 2025-01-29
+
+### Added
+- **Complete Rebrand**: Updated from CryptoVest to AssetAlchemyPrime.org
+- **Stripe Integration**: Card deposit functionality with secure payment processing
+- **Enhanced Mobile UX**: Improved responsive design and touch interactions
+- **Firebase Integration**: Real-time data synchronization and cloud storage
+- **Admin Dashboard**: Comprehensive transaction monitoring and user management
+- **Multi-deployment Support**: Netlify, Docker, and local development options
+
+### Changed
+- **Brand Identity**: All references updated to AssetAlchemyPrime.org
+- **Demo Credentials**: Updated to @assetalchemyprime.org email domain
+- **Repository Structure**: Improved organization and documentation
+- **Environment Configuration**: Enhanced .env setup and Docker support
+
+### Technical Improvements
+- **TypeScript**: Strict type checking and improved type definitions
+- **Performance**: Optimized bundle size and loading times
+- **Security**: Enhanced authentication and transaction security
+- **Documentation**: Comprehensive README and contributing guidelines
 
 ## [1.0.0] - 2025-01-15
 

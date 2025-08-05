@@ -23,6 +23,7 @@ A comprehensive premium investment platform built with React, TypeScript, and Ta
 
 ### Transaction Flows
 - **Deposits**: Crypto wallet address generation with receipt upload
+- **Card Deposits**: Stripe integration for instant card payments
 - **Withdrawals**: Multi-step verification process with security holds
 - **Card Applications**: Virtual and physical crypto card ordering
 
@@ -35,17 +36,21 @@ A comprehensive premium investment platform built with React, TypeScript, and Ta
 ## 🛠️ Tech Stack
 
 - **Frontend**: React 18, TypeScript, Tailwind CSS
+- **Backend**: Node.js, Express.js
+- **Database**: PostgreSQL with Supabase
+- **Payments**: Stripe integration
 - **Icons**: Lucide React
 - **Build Tool**: Vite
 - **Styling**: PostCSS, Autoprefixer
 - **Linting**: ESLint with TypeScript support
+- **Deployment**: Netlify
 
 ## 📦 Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/asset-alchemy-prime.git
-   cd asset-alchemy-prime
+   git clone https://github.com/AssetAlchemyPrime/platform.git
+   cd platform
    ```
 
 2. **Install dependencies**
@@ -53,12 +58,23 @@ A comprehensive premium investment platform built with React, TypeScript, and Ta
    npm install
    ```
 
-3. **Start development server**
+3. **Environment Setup**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+4. **Start development server**
    ```bash
    npm run dev
    ```
 
-4. **Build for production**
+5. **Start with backend (optional)**
+   ```bash
+   npm run dev:full
+   ```
+
+6. **Build for production**
    ```bash
    npm run build
    ```
@@ -68,6 +84,8 @@ A comprehensive premium investment platform built with React, TypeScript, and Ta
 ```
 src/
 ├── components/           # React components
+│   ├── Admin/           # Admin dashboard components
+│   ├── Auth/            # Authentication components
 │   ├── Dashboard/       # Dashboard-specific components
 │   ├── Investment/      # Investment system components
 │   ├── Layout/          # Layout components (Header, Sidebar)
@@ -75,10 +93,20 @@ src/
 │   └── ComplianceGate.tsx
 ├── data/                # Mock data and constants
 ├── hooks/               # Custom React hooks
+├── services/            # API services and integrations
 ├── types/               # TypeScript type definitions
 ├── App.tsx              # Main application component
 ├── main.tsx             # Application entry point
 └── index.css            # Global styles
+
+server/                  # Backend API
+├── middleware/          # Express middleware
+├── routes/              # API routes
+├── database.cjs         # Database configuration
+└── index.cjs            # Server entry point
+
+supabase/               # Database migrations
+└── migrations/         # SQL migration files
 ```
 
 ## 🎨 Design System
@@ -136,6 +164,8 @@ The platform supports 50+ languages with:
 
 ### Available Scripts
 - `npm run dev` - Start development server
+- `npm run dev:full` - Start with backend server
+- `npm run server` - Start backend only
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
@@ -148,17 +178,59 @@ The platform supports 50+ languages with:
 
 ## 🚀 Deployment
 
-### Build Process
+### Netlify (Recommended)
+The application is configured for easy Netlify deployment:
+
 ```bash
 npm run build
+# Deploy dist/ folder to Netlify
+```
+
+### Docker Deployment
+```bash
+# Build and run with Docker Compose
+npm run dev:docker
+
+# Or build Docker image
+npm run build:docker
 ```
 
 ### Environment Variables
 Create a `.env` file for environment-specific configurations:
 ```env
-VITE_API_URL=your_api_url
-VITE_APP_NAME=CryptoVest
+# Database
+DATABASE_URL=postgresql://username:password@localhost:5432/assetalchemyprime
+
+# JWT Secret
+JWT_SECRET=your-super-secret-jwt-key
+
+# Stripe (optional)
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PUBLISHABLE_KEY=pk_test_...
+
+# Email (optional)
+SMTP_HOST=smtp.gmail.com
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+
+# Frontend URL
+FRONTEND_URL=http://localhost:5173
 ```
+
+## 🧪 Testing
+
+### Demo Credentials
+- **Admin**: `admin@assetalchemyprime.org` / `admin123`
+- **User**: `demo@assetalchemyprime.org` / `user123`
+
+### Features to Test
+- ✅ Authentication system
+- ✅ Investment calculator
+- ✅ Deposit/withdrawal flows
+- ✅ Admin dashboard
+- ✅ Mobile responsiveness
+- ✅ Multi-language support
+- ✅ Dark/light themes
 
 ## 📄 License
 
@@ -172,10 +244,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
 ## 📞 Support
 
 For support and questions:
-- Create an issue on GitHub
+- Create an issue on [GitHub](https://github.com/AssetAlchemyPrime/platform/issues)
 - Email: support@assetalchemyprime.org
 - Documentation: [docs.assetalchemyprime.org](https://docs.assetalchemyprime.org)
 
@@ -184,11 +258,17 @@ For support and questions:
 - [ ] Real-time WebSocket integration
 - [ ] Advanced charting and analytics
 - [ ] Mobile app development
-- [ ] API documentation
+- [ ] API documentation with Swagger
 - [ ] Automated testing suite
 - [ ] Performance monitoring
 - [ ] Multi-currency support
 - [ ] Advanced security features
+- [ ] KYC/AML integration
+- [ ] Institutional trading features
+
+## 🏆 Live Demo
+
+**🔗 Demo**: [https://gentle-mandazi-1445d4.netlify.app](https://gentle-mandazi-1445d4.netlify.app)
 
 ---
 
