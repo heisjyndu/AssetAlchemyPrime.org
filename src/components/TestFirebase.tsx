@@ -49,7 +49,6 @@ const TestFirebase: React.FC = () => {
           country: 'GB'
         }
       );
-      });
 
       if (result.user) {
         setTests(prev => ({
