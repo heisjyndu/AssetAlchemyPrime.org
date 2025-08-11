@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Database, Users, CreditCard } from 'lucide-react';
+import { supabaseApi } from '../services/supabaseApi';
 
 const TestFirebase: React.FC = () => {
   const [tests, setTests] = useState({
-    firebaseConnection: { status: 'testing', message: 'Testing Firebase connection...' },
-    userCreation: { status: 'pending', message: 'Waiting for Firebase connection...' },
+    supabaseConnection: { status: 'testing', message: 'Testing Supabase connection...' },
+    userCreation: { status: 'pending', message: 'Waiting for Supabase connection...' },
     transactionStorage: { status: 'pending', message: 'Waiting for user creation...' },
     adminAccess: { status: 'pending', message: 'Waiting for transaction test...' }
   });
@@ -14,24 +15,21 @@ const TestFirebase: React.FC = () => {
   }, []);
 
   const runTests = async () => {
-    // Test 1: Firebase Connection
+    // Test 1: Supabase Connection
     try {
-      const response = await fetch('/api/health');
-      if (response.ok) {
+      const currentUser = await supabaseApi.getCurrentUser();
+      // If we can call Supabase without error, connection is working
         setTests(prev => ({
           ...prev,
-          firebaseConnection: { status: 'success', message: 'Backend server connected successfully!' }
+          supabaseConnection: { status: 'success', message: 'Supabase connected successfully!' }
         }));
         
         // Test 2: User Creation
         setTimeout(() => testUserCreation(), 1000);
-      } else {
-        throw new Error('Server not responding');
-      }
     } catch (error) {
       setTests(prev => ({
         ...prev,
-        firebaseConnection: { status: 'error', message: 'Backend server connection failed' }
+        supabaseConnection: { status: 'error', message: 'Supabase connection failed - check your configuration' }
       }));
     }
   };
@@ -43,93 +41,80 @@ const TestFirebase: React.FC = () => {
     }));
 
     try {
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: `test-${Date.now()}@example.com`,
-          password: 'testpassword123',
+      const result = await supabaseApi.signUp(
+        `test-${Date.now()}@example.com`,
+        'testpassword123',
+        {
           name: 'Test User',
           country: 'GB'
-        })
+        }
+      );
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      if (result.user) {
         setTests(prev => ({
           ...prev,
-          userCreation: { status: 'success', message: 'User registration working!' }
+          userCreation: { status: 'success', message: 'Supabase Auth & user creation working!' }
         }));
         
         // Test 3: Transaction Storage
-        setTimeout(() => testTransactionStorage(data.token), 1000);
+        setTimeout(() => testTransactionStorage(result.user!.id), 1000);
       } else {
-        throw new Error('Registration failed');
+        throw new Error('User creation failed');
       }
     } catch (error) {
       setTests(prev => ({
         ...prev,
-        userCreation: { status: 'error', message: 'User registration failed - Firebase may need setup' }
+        userCreation: { status: 'error', message: 'User registration failed - Supabase may need setup' }
       }));
     }
   };
 
-  const testTransactionStorage = async (token: string) => {
+  const testTransactionStorage = async (userId: string) => {
     setTests(prev => ({
       ...prev,
       transactionStorage: { status: 'testing', message: 'Testing transaction creation...' }
     }));
 
     try {
-      const formData = new FormData();
-      formData.append('amount', '100');
-      formData.append('method', 'bitcoin');
-
-      const response = await fetch('/api/transactions/deposit', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData
+      const transaction = await supabaseApi.createTransaction(userId, {
+        type: 'deposit',
+        amount: 100,
+        method: 'bitcoin'
       });
 
-      if (response.ok) {
+      if (transaction) {
         setTests(prev => ({
           ...prev,
-          transactionStorage: { status: 'success', message: 'Transaction storage working!' }
+          transactionStorage: { status: 'success', message: 'Supabase transaction storage working!' }
         }));
         
         // Test 4: Admin Access
-        setTimeout(() => testAdminAccess(token), 1000);
+        setTimeout(() => testAdminAccess(), 1000);
       } else {
         throw new Error('Transaction creation failed');
       }
     } catch (error) {
       setTests(prev => ({
         ...prev,
-        transactionStorage: { status: 'error', message: 'Transaction storage failed' }
+        transactionStorage: { status: 'error', message: 'Supabase transaction storage failed' }
       }));
     }
   };
 
-  const testAdminAccess = async (token: string) => {
+  const testAdminAccess = async () => {
     setTests(prev => ({
       ...prev,
       adminAccess: { status: 'testing', message: 'Testing admin portal access...' }
     }));
 
     try {
-      const response = await fetch('/api/admin/stats', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const stats = await supabaseApi.getAdminStats();
 
-      if (response.status === 403) {
+      if (stats) {
         setTests(prev => ({
           ...prev,
-          adminAccess: { status: 'success', message: 'Admin security working (non-admin blocked)!' }
-        }));
-      } else if (response.ok) {
-        setTests(prev => ({
-          ...prev,
-          adminAccess: { status: 'success', message: 'Admin portal accessible!' }
+          adminAccess: { status: 'success', message: 'Supabase admin functions working!' }
         }));
       } else {
         throw new Error('Admin test failed');
@@ -137,7 +122,7 @@ const TestFirebase: React.FC = () => {
     } catch (error) {
       setTests(prev => ({
         ...prev,
-        adminAccess: { status: 'error', message: 'Admin portal test failed' }
+        adminAccess: { status: 'error', message: 'Supabase admin functions failed' }
       }));
     }
   };
@@ -173,25 +158,25 @@ const TestFirebase: React.FC = () => {
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            🔥 AssetAlchemyPrime Integration Test
+            ⚡ AssetAlchemyPrime Supabase Integration Test
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
-            Testing all system components to ensure everything is working properly
+            Testing Supabase integration to ensure everything is working properly
           </p>
         </div>
 
         <div className="p-6 space-y-4">
-          {/* Test 1: Firebase Connection */}
-          <div className={`p-4 rounded-lg border-2 ${getStatusColor(tests.firebaseConnection.status)}`}>
+          {/* Test 1: Supabase Connection */}
+          <div className={`p-4 rounded-lg border-2 ${getStatusColor(tests.supabaseConnection.status)}`}>
             <div className="flex items-center space-x-3">
-              {getStatusIcon(tests.firebaseConnection.status)}
+              {getStatusIcon(tests.supabaseConnection.status)}
               <Database className="w-6 h-6 text-gray-600 dark:text-gray-400" />
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-900 dark:text-white">
-                  Backend Server Connection
+                  Supabase Database Connection
                 </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {tests.firebaseConnection.message}
+                  {tests.supabaseConnection.message}
                 </p>
               </div>
             </div>
@@ -204,7 +189,7 @@ const TestFirebase: React.FC = () => {
               <Users className="w-6 h-6 text-gray-600 dark:text-gray-400" />
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-900 dark:text-white">
-                  User Registration & Firebase Auth
+                  User Registration & Supabase Auth
                 </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   {tests.userCreation.message}
@@ -220,7 +205,7 @@ const TestFirebase: React.FC = () => {
               <CreditCard className="w-6 h-6 text-gray-600 dark:text-gray-400" />
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-900 dark:text-white">
-                  Transaction Storage & Firestore
+                  Transaction Storage & Supabase Database
                 </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   {tests.transactionStorage.message}
@@ -238,7 +223,7 @@ const TestFirebase: React.FC = () => {
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-900 dark:text-white">
-                  Admin Portal & Security
+                  Admin Functions & Database Queries
                 </h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   {tests.adminAccess.message}
@@ -255,11 +240,11 @@ const TestFirebase: React.FC = () => {
                 Next Steps
               </h4>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                {tests.firebaseConnection.status === 'error' 
-                  ? "Fix backend server connection first"
+                {tests.supabaseConnection.status === 'error' 
+                  ? "Set up your Supabase project and add environment variables"
                   : tests.userCreation.status === 'error'
-                  ? "Set up your Firebase project with proper configuration"
-                  : "All systems operational! Ready for production setup."
+                  ? "Check your Supabase configuration and RLS policies"
+                  : "All Supabase systems operational! Ready for production."
                 }
               </p>
             </div>

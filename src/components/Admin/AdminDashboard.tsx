@@ -12,7 +12,7 @@ import {
   Filter,
   Download
 } from 'lucide-react';
-import { firebaseApi } from '../../services/firebaseApi';
+import { supabaseApi } from '../../services/supabaseApi';
 
 const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState<any>(null);
@@ -26,7 +26,7 @@ const AdminDashboard: React.FC = () => {
     loadAdminData();
     
     // Subscribe to real-time transaction updates
-    const unsubscribe = firebaseApi.subscribeToTransactions((newTransactions) => {
+    const unsubscribe = supabaseApi.subscribeToAllTransactions((newTransactions) => {
       setTransactions(newTransactions);
       filterTransactions(newTransactions, filter, searchTerm);
     });
@@ -41,8 +41,8 @@ const AdminDashboard: React.FC = () => {
   const loadAdminData = async () => {
     try {
       const [adminStats, allTransactions] = await Promise.all([
-        firebaseApi.getAdminStats(),
-        firebaseApi.getTransactions()
+        supabaseApi.getAdminStats(),
+        supabaseApi.getAllTransactions()
       ]);
       
       setStats(adminStats);
@@ -109,7 +109,7 @@ const AdminDashboard: React.FC = () => {
 
   const handleStatusUpdate = async (transactionId: string, newStatus: string) => {
     try {
-      await firebaseApi.updateTransaction(transactionId, { status: newStatus });
+      await supabaseApi.updateTransaction(transactionId, { status: newStatus });
       
       // Update local state
       setTransactions(prev => 
@@ -346,7 +346,7 @@ const AdminDashboard: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {transaction.userEmail || 'N/A'}
+                    {(transaction as any).userEmail || 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                     {formatCurrency(transaction.amount)}

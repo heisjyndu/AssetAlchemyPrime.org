@@ -1,3 +1,5 @@
+import { supabaseApi } from './supabaseApi';
+
 const API_BASE_URL = import.meta.env.PROD 
   ? '/.netlify/functions/api' 
   : 'http://localhost:5000/api';
@@ -72,9 +74,97 @@ class ApiService {
   }
 
   private async handleProductionFallback(endpoint: string, options: RequestInit = {}) {
-    // Mock responses for production demo
+    // Try Supabase first, then fall back to mock data
     const method = options.method || 'GET';
     
+    try {
+      // Use Supabase for authentication and data operations
+      if (endpoint === '/auth/login' && method === 'POST') {
+        const body = JSON.parse(options.body as string);
+        const result = await supabaseApi.signIn(body.email, body.password);
+        return {
+          token: result.session?.access_token,
+          user: result.user
+        };
+      }
+      
+      if (endpoint === '/auth/register' && method === 'POST') {
+        const body = JSON.parse(options.body as string);
+        const result = await supabaseApi.signUp(body.email, body.password, {
+          name: body.name,
+          country: body.country
+        });
+        return {
+          token: result.session?.access_token,
+          user: result.user
+        };
+      }
+      
+      // For other endpoints, try to use Supabase if user is authenticated
+      const currentUser = await supabaseApi.getCurrentUser();
+      if (currentUser) {
+        if (endpoint === '/dashboard') {
+          return await supabaseApi.getDashboardData(currentUser.id);
+        }
+        
+        if (endpoint === '/transactions') {
+          return await supabaseApi.getTransactions(currentUser.id);
+        }
+        
+        if (endpoint === '/transactions/deposit' && method === 'POST') {
+          const formData = options.body as FormData;
+          return await supabaseApi.createTransaction(currentUser.id, {
+            type: 'deposit',
+            amount: Number(formData.get('amount')),
+            method: formData.get('method') as string,
+            wallet_address: 'generated-address',
+            receipt_file: formData.get('receipt')?.toString()
+          });
+        }
+        
+        if (endpoint === '/transactions/withdraw' && method === 'POST') {
+          const body = JSON.parse(options.body as string);
+          return await supabaseApi.createTransaction(currentUser.id, {
+            type: 'withdraw',
+            amount: body.amount,
+            method: 'crypto',
+            wallet_address: body.address
+          });
+        }
+        
+        if (endpoint === '/investments' && method === 'POST') {
+          const body = JSON.parse(options.body as string);
+          const plans = {
+            basic: { dailyRate: 0.015, duration: 7 },
+            standard: { dailyRate: 0.02, duration: 7 },
+            advanced: { dailyRate: 0.025, duration: 7 },
+            business: { dailyRate: 0.04, duration: 7 },
+            veteran: { dailyRate: 0.055, duration: 7 }
+          };
+          const plan = plans[body.planId as keyof typeof plans];
+          
+          return await supabaseApi.createInvestment(currentUser.id, {
+            plan_id: body.planId,
+            amount: body.amount,
+            daily_rate: plan.dailyRate,
+            duration: plan.duration
+          });
+        }
+        
+        if (endpoint === '/cards/apply' && method === 'POST') {
+          const body = JSON.parse(options.body as string);
+          return await supabaseApi.createCardApplication(currentUser.id, body);
+        }
+        
+        if (endpoint === '/admin/stats') {
+          return await supabaseApi.getAdminStats();
+        }
+      }
+    } catch (supabaseError) {
+      console.warn('Supabase operation failed, falling back to mock data:', supabaseError);
+    }
+    
+    // Fallback to mock responses
     if (endpoint === '/auth/login' && method === 'POST') {
       // Store token for demo
       const mockToken = 'demo-token-' + Date.now();
@@ -163,6 +253,17 @@ class ApiService {
 
   // Authentication
   async login(email: string, password: string) {
+    try {
+      // Try Supabase first
+      const result = await supabaseApi.signIn(email, password);
+      return {
+        token: result.session?.access_token,
+        user: result.user
+      };
+    } catch (error) {
+      console.warn('Supabase login failed, trying fallback API:', error);
+    }
+    
     const response = await this.request('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
@@ -182,6 +283,20 @@ class ApiService {
     name: string;
     country: string;
   }) {
+    try {
+      // Try Supabase first
+      const result = await supabaseApi.signUp(userData.email, userData.password, {
+        name: userData.name,
+        country: userData.country
+      });
+      return {
+        token: result.session?.access_token,
+        user: result.user
+      };
+    } catch (error) {
+      console.warn('Supabase registration failed, trying fallback API:', error);
+    }
+    
     const response = await this.request('/auth/register', {
       method: 'POST',
       body: JSON.stringify(userData),
@@ -196,16 +311,37 @@ class ApiService {
   }
 
   logout() {
+    // Sign out from Supabase
+    supabaseApi.signOut().catch(console.error);
+    
     this.token = null;
     localStorage.removeItem('auth_token');
   }
 
   // Dashboard
   async getDashboard() {
+    try {
+      const currentUser = await supabaseApi.getCurrentUser();
+      if (currentUser) {
+        return await supabaseApi.getDashboardData(currentUser.id);
+      }
+    } catch (error) {
+      console.warn('Supabase dashboard failed, using fallback:', error);
+    }
+    
     return this.request('/dashboard');
   }
 
   async getTransactions() {
+    try {
+      const currentUser = await supabaseApi.getCurrentUser();
+      if (currentUser) {
+        return await supabaseApi.getTransactions(currentUser.id);
+      }
+    } catch (error) {
+      console.warn('Supabase transactions failed, using fallback:', error);
+    }
+    
     return this.request('/transactions');
   }
 

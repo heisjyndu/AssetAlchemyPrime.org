@@ -16,14 +16,14 @@ import StripeDepositModal from './components/Modals/StripeDepositModal';
 import AdminDashboard from './components/Admin/AdminDashboard';
 import TestFirebase from './components/TestFirebase';
 import { useTheme } from './hooks/useTheme';
-import { useAuthProvider } from './hooks/useAuth';
+import { useSupabaseAuth } from './hooks/useSupabaseAuth';
 import { apiService } from './services/api';
 import { mockUser, investmentPlans } from './data/mockData';
 import type { InvestmentPlan } from './types';
 
 function App() {
   const { isDark } = useTheme();
-  const auth = useAuthProvider();
+  const auth = useSupabaseAuth();
   const [isCountryVerified, setIsCountryVerified] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
@@ -77,7 +77,7 @@ function App() {
   };
 
   const handleLogout = () => {
-    auth.logout();
+    auth.signOut();
     setIsCountryVerified(false);
     setShowAuth(false);
     setUserCountry('');
@@ -197,7 +197,7 @@ function App() {
         {authMode === 'login' ? (
           <LoginForm
             onLogin={async (email, password) => {
-              await auth.login(email, password);
+              await auth.signIn(email, password);
               setShowAuth(false);
             }}
             onSwitchToRegister={() => setAuthMode('register')}
@@ -206,7 +206,10 @@ function App() {
         ) : (
           <RegisterForm
             onRegister={async (userData) => {
-              await auth.register(userData);
+              await auth.signUp(userData.email, userData.password, {
+                name: userData.name,
+                country: userData.country
+              });
               setShowAuth(false);
             }}
             onSwitchToLogin={() => setAuthMode('login')}
