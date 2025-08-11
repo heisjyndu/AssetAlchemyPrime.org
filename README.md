@@ -36,8 +36,8 @@ A comprehensive premium investment platform built with React, TypeScript, and Ta
 ## 🛠️ Tech Stack
 
 - **Frontend**: React 18, TypeScript, Tailwind CSS
-- **Backend**: Node.js, Express.js
-- **Database**: PostgreSQL with Supabase
+- **Backend**: Supabase (Database, Auth, Real-time)
+- **Database**: PostgreSQL with Row Level Security
 - **Payments**: Stripe integration
 - **Icons**: Lucide React
 - **Build Tool**: Vite
@@ -61,7 +61,9 @@ A comprehensive premium investment platform built with React, TypeScript, and Ta
 3. **Environment Setup**
    ```bash
    cp .env.example .env
-   # Edit .env with your configuration
+   # Add your Supabase project URL and anon key
+   VITE_SUPABASE_URL=https://your-project.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-key
    ```
 
 4. **Start development server**
@@ -69,12 +71,7 @@ A comprehensive premium investment platform built with React, TypeScript, and Ta
    npm run dev
    ```
 
-5. **Start with backend (optional)**
-   ```bash
-   npm run dev:full
-   ```
-
-6. **Build for production**
+5. **Build for production**
    ```bash
    npm run build
    ```
@@ -196,32 +193,47 @@ npm run build:docker
 ```
 
 ### Environment Variables
-Create a `.env` file for environment-specific configurations:
+Create a `.env` file with your Supabase configuration:
 ```env
-# Database
-DATABASE_URL=postgresql://username:password@localhost:5432/assetalchemyprime
+# Supabase Configuration
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key-here
 
-# JWT Secret
-JWT_SECRET=your-super-secret-jwt-key
-
-# Stripe (optional)
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_PUBLISHABLE_KEY=pk_test_...
-
-# Email (optional)
-SMTP_HOST=smtp.gmail.com
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-app-password
-
-# Frontend URL
-FRONTEND_URL=http://localhost:5173
+# Optional: Stripe for payments
+VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_key
 ```
+
+### Supabase Setup
+
+1. **Create a Supabase project** at [supabase.com](https://supabase.com)
+
+2. **Run the database migrations**:
+   - Copy the SQL from `supabase/migrations/20250729110712_falling_forest.sql`
+   - Run it in your Supabase SQL editor
+   - Copy the SQL from `supabase/migrations/create_rls_policies.sql`
+   - Run it to set up Row Level Security
+
+3. **Configure Authentication**:
+   - Go to Authentication > Settings in your Supabase dashboard
+   - Enable email authentication
+   - Disable email confirmation for development (optional)
+
+4. **Set up Row Level Security**:
+   - The RLS policies are automatically created by the migration
+   - Users can only access their own data
+   - Admin users can access all data
+
+5. **Get your project credentials**:
+   - Go to Settings > API in your Supabase dashboard
+   - Copy your project URL and anon key to your `.env` file
 
 ## 🧪 Testing
 
 ### Demo Credentials
-- **Admin**: `admin@assetalchemyprime.org` / `admin123`
-- **User**: `demo@assetalchemyprime.org` / `user123`
+- Create accounts through the registration form
+- Or use the pre-seeded accounts from the migration:
+  - **Admin**: `admin@cryptovest.com` / `admin123`
+  - **User**: `user@example.com` / `user123`
 
 ### Features to Test
 - ✅ Authentication system
@@ -231,6 +243,8 @@ FRONTEND_URL=http://localhost:5173
 - ✅ Mobile responsiveness
 - ✅ Multi-language support
 - ✅ Dark/light themes
+- ✅ Real-time data updates
+- ✅ Supabase integration
 
 ## 📄 License
 
@@ -255,7 +269,8 @@ For support and questions:
 
 ## 🎯 Roadmap
 
-- [ ] Real-time WebSocket integration
+- [x] Real-time Supabase integration
+- [x] Row Level Security implementation
 - [ ] Advanced charting and analytics
 - [ ] Mobile app development
 - [ ] API documentation with Swagger
@@ -263,8 +278,8 @@ For support and questions:
 - [ ] Performance monitoring
 - [ ] Multi-currency support
 - [ ] Advanced security features
-- [ ] KYC/AML integration
 - [ ] Institutional trading features
+- [ ] Mobile app with React Native
 
 ## 🏆 Live Demo
 
