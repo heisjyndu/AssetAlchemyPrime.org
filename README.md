@@ -61,8 +61,8 @@ A comprehensive premium investment platform built with React, TypeScript, and Ta
 3. **Environment Setup**
    ```bash
    cp .env.example .env
-   # Add your Supabase project URL and anon key
-   VITE_SUPABASE_URL=https://your-project.supabase.co
+   # Add your Supabase anon key (URL is pre-configured)
+   VITE_SUPABASE_URL=https://dkbssyeqkgjyhweuztqx.supabase.co
    VITE_SUPABASE_ANON_KEY=your-anon-key
    ```
 
@@ -193,10 +193,10 @@ npm run build:docker
 ```
 
 ### Environment Variables
-Create a `.env` file with your Supabase configuration:
+Create a `.env` file with your Supabase anon key:
 ```env
 # Supabase Configuration
-VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_URL=https://dkbssyeqkgjyhweuztqx.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key-here
 
 # Optional: Stripe for payments
@@ -205,12 +205,12 @@ VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_key
 
 ### Supabase Setup
 
-1. **Create a Supabase project** at [supabase.com](https://supabase.com)
+1. **Your Supabase project** is already configured: `dkbssyeqkgjyhweuztqx.supabase.co`
 
 2. **Run the database migrations**:
    - Copy the SQL from `supabase/migrations/20250729110712_falling_forest.sql`
    - Run it in your Supabase SQL editor
-   - Copy the SQL from `supabase/migrations/create_rls_policies.sql`
+   - Copy the SQL from `supabase/migrations/20250811223921_crimson_dawn.sql`
    - Run it to set up Row Level Security
 
 3. **Configure Authentication**:
@@ -223,9 +223,9 @@ VITE_STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_key
    - Users can only access their own data
    - Admin users can access all data
 
-5. **Get your project credentials**:
+5. **Get your anon key**:
    - Go to Settings > API in your Supabase dashboard
-   - Copy your project URL and anon key to your `.env` file
+   - Copy your anon key to your `.env` file
 
 ## 🧪 Testing
 

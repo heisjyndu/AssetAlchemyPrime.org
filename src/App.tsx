@@ -191,7 +191,8 @@ function App() {
     return <ComplianceGate onCountryVerified={handleCountryVerified} />;
   }
 
-  if (showAuth) {
+  // Show auth if not authenticated or explicitly requested
+  if (!auth.isAuthenticated || showAuth) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
         {authMode === 'login' ? (
@@ -226,6 +227,27 @@ function App() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mx-auto mb-4"></div>
           <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Only show main UI if user is authenticated
+  if (!auth.isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="p-4 bg-gradient-to-r from-teal-500 to-blue-500 rounded-full w-16 h-16 mx-auto mb-4">
+            <div className="w-8 h-8 bg-white rounded-full mx-auto mt-2"></div>
+          </div>
+          <h2 className="text-xl font-bold text-white mb-2">Authentication Required</h2>
+          <p className="text-gray-300 mb-6">Please sign in to access AssetAlchemyPrime</p>
+          <button
+            onClick={() => setShowAuth(true)}
+            className="px-6 py-3 bg-gradient-to-r from-teal-500 to-blue-500 text-white rounded-lg font-semibold hover:shadow-lg transition-all"
+          >
+            Sign In
+          </button>
         </div>
       </div>
     );

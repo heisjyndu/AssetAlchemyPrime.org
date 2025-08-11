@@ -206,13 +206,12 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister, onSwitchToLogin
             </button>
           </p>
         </div>
-        {import.meta.env.PROD && (
-          <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-            <p className="text-sm text-blue-800 dark:text-blue-200">
-              <strong>Demo Mode:</strong> Fill out the form to create a demo account
-            </p>
-          </div>
-        )}
+        
+        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <p className="text-sm text-blue-800 dark:text-blue-200">
+            <strong>Supabase:</strong> Create a real account with secure authentication
+          </p>
+        </div>
       </div>
     </div>
   );

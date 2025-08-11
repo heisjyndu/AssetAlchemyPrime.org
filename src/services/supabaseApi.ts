@@ -112,7 +112,31 @@ export class SupabaseApiService {
         .eq('id', user.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        // If user profile doesn't exist, create it
+        if (error.code === 'PGRST116') {
+          const referralCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+          const { data: newProfile, error: createError } = await supabase
+            .from('users')
+            .insert({
+              id: user.id,
+              email: user.email || '',
+              name: user.user_metadata?.name || 'User',
+              country: user.user_metadata?.country || 'US',
+              referral_code: referralCode,
+              is_verified: false,
+              has_2fa: false,
+              is_admin: false
+            })
+            .select()
+            .single();
+          
+          if (createError) throw createError;
+          return this.mapUserFromSupabase(newProfile);
+        }
+        throw error;
+      }
 
       return this.mapUserFromSupabase(userProfile);
     } catch (error) {

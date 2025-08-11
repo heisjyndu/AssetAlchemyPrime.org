@@ -23,6 +23,7 @@ export const useSupabaseAuth = () => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session?.user?.email);
       setSession(session);
       
       if (session?.user) {
@@ -38,6 +39,7 @@ export const useSupabaseAuth = () => {
 
   const loadUserProfile = async (supabaseUser: SupabaseUser) => {
     try {
+      setIsLoading(true);
       const userProfile = await supabaseApi.getCurrentUser();
       setUser(userProfile);
     } catch (error) {
