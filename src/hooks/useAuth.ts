@@ -1,75 +1,75 @@
 import { useState, useEffect } from 'react';
-import { apiService } from '../services/api';
-import { User } from '../types';
+import { authService, User, LoginCredentials, RegisterData } from '../services/auth';
 
-export const useAuthProvider = () => {
+export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      // Validate token and get user data
-      validateToken();
-    } else {
-      setIsLoading(false);
-    }
+    validateSession();
   }, []);
 
-  const validateToken = async () => {
+  const validateSession = async () => {
     try {
-      // Simple token validation - if we have a token, consider it valid for demo
-      const token = localStorage.getItem('auth_token');
-      if (token) {
-        // Set a mock user for demo purposes
-        setUser({
-          id: '1',
-          name: 'Demo User',
-          email: 'demo@assetalchemyprime.org',
-          country: 'GB',
-          isVerified: true,
-          has2FA: true,
-          referralCode: 'DEMO123'
-        });
-      }
-      setIsLoading(false);
+      setIsLoading(true);
+      const validUser = await authService.validateSession();
+      setUser(validUser);
     } catch (error) {
-      // Token is invalid
-      localStorage.removeItem('auth_token');
+      console.error('Session validation failed:', error);
       setUser(null);
+    } finally {
       setIsLoading(false);
     }
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (credentials: LoginCredentials) => {
     try {
-      const response = await apiService.login(email, password);
-      setUser(response.user);
-    } catch (error) {
+      setIsLoading(true);
+      setError('');
+      const { user } = await authService.login(credentials);
+      setUser(user);
+      return user;
+    } catch (error: any) {
+      setError(error.message || 'Login failed');
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const register = async (userData: any) => {
+  const register = async (data: RegisterData) => {
     try {
-      const response = await apiService.register(userData);
-      setUser(response.user);
-    } catch (error) {
+      setIsLoading(true);
+      setError('');
+      const { user } = await authService.register(data);
+      setUser(user);
+      return user;
+    } catch (error: any) {
+      setError(error.message || 'Registration failed');
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const logout = () => {
-    apiService.logout();
-    setUser(null);
+  const logout = async () => {
+    try {
+      await authService.logout();
+      setUser(null);
+      setError('');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   return {
     user,
     isLoading,
+    error,
     login,
     register,
     logout,
-    isAuthenticated: !!user || !!localStorage.getItem('auth_token'),
+    isAuthenticated: !!user
   };
 };
