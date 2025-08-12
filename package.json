@@ -4,7 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "description": "Premium cryptocurrency investment platform with advanced features",
-  "keywords": ["cryptocurrency", "investment", "trading", "fintech", "react", "typescript"],
+  "keywords": [
+    "cryptocurrency",
+    "investment",
+    "trading",
+    "fintech",
+    "react",
+    "typescript"
+  ],
   "author": "AssetAlchemyPrime Team",
   "license": "MIT",
   "homepage": "https://assetalchemyprime.org",
@@ -30,6 +37,7 @@
     "test:api": "curl http://localhost:5000/api/health"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.54.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
